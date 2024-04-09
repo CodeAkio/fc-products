@@ -23,7 +23,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.Product{}, &entity.User{})
+	err = db.AutoMigrate(&entity.Product{}, &entity.User{})
+	if err != nil {
+		panic(err)
+		return
+	}
 	productDB := database.NewProduct(db)
 
 	productHandler := handlers.NewProductHandler(productDB)
@@ -32,5 +36,9 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Post("/products", productHandler.CreateProduct)
 
-	http.ListenAndServe(":8000", r)
+	err = http.ListenAndServe(":8000", r)
+	if err != nil {
+		panic(err)
+		return
+	}
 }
