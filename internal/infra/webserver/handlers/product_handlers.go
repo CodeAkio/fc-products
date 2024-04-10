@@ -5,6 +5,7 @@ import (
 	"github.com/CodeAkio/fc-products/internal/dto"
 	"github.com/CodeAkio/fc-products/internal/entity"
 	"github.com/CodeAkio/fc-products/internal/infra/database"
+	entityPkg "github.com/CodeAkio/fc-products/pkg/entity"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -55,4 +56,39 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(product)
+}
+
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var product entity.Product
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	product.ID, err = entityPkg.ParseID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.ProductDB.FindByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	err = h.ProductDB.Update(&product)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
