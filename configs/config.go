@@ -42,7 +42,7 @@ func LoadConfig(path string) (*Conf, error) {
 		panic(err)
 	}
 
-	cfg.TokenAuth = jwtauth.New("HS256", cfg.JWTSecret, nil)
+	cfg.TokenAuth = jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
 	return cfg, err
 }
