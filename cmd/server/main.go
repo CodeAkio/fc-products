@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/CodeAkio/fc-products/configs"
 	"github.com/CodeAkio/fc-products/internal/entity"
 	"github.com/CodeAkio/fc-products/internal/infra/database"
@@ -10,14 +12,12 @@ import (
 	"github.com/go-chi/jwtauth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 func main() {
 	config, err := configs.LoadConfig(".")
 	if err != nil {
 		panic(err)
-		return
 	}
 
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
@@ -27,7 +27,6 @@ func main() {
 	err = db.AutoMigrate(&entity.Product{}, &entity.User{})
 	if err != nil {
 		panic(err)
-		return
 	}
 
 	productDB := database.NewProduct(db)
@@ -59,6 +58,5 @@ func main() {
 	err = http.ListenAndServe(":8000", r)
 	if err != nil {
 		panic(err)
-		return
 	}
 }
